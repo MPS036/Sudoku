@@ -1,0 +1,7 @@
+As for me, one of the most interesting projects that I have managed to do.
+
+Initially, the given sudoku field was specified in the code,
+Then I did a random generation of the sudoku-task.
+
+The idea of the project itself is that with a randomly generated task,
+the computer itself finds a solution through backtracking
