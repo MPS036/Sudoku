@@ -1,86 +1,110 @@
 from random import sample
+from typing import Optional, Tuple, List
 
-base = 3
-side = base * base
-
-
-def pattern(r, c):
-    return (base * (r % base) + r // base + c) % side
+BASE = 3
+SIDE = BASE * BASE
 
 
-def shuffle(s):
-    return sample(s, len(s))
+def pattern(r: int, c: int) -> int:
+    return (BASE * (r % BASE) + r // BASE + c) % SIDE
 
 
-rBase = range(base)
-rows = [g * base + r for g in shuffle(rBase) for r in shuffle(rBase)]
-cols = [g * base + c for g in shuffle(rBase) for c in shuffle(rBase)]
-nums = shuffle(range(1, base * base + 1))
-
-board = [[nums[pattern(r, c)] for c in cols] for r in rows]
-
-squares = side * side
-empties = squares * 3 // 4
-for p in sample(range(squares), empties):
-    board[p // side][p % side] = 0
+def shuffle(seq):
+    return sample(seq, len(seq))
 
 
-def solution(b):
-    find = find_zero(b)
-    if not find:
-        return True
-    else:
-        x, y = find
-    for i in range(1, 10):
-        if valid(b, i, (x, y)):
-            b[x][y] = i
-            if solution(b):
-                return True
-            b[x][y] = 0
-    return False
+def generate_full_board() -> List[List[int]]:
+    r_base = range(BASE)
+    rows = [g * BASE + r for g in shuffle(r_base) for r in shuffle(r_base)]
+    cols = [g * BASE + c for g in shuffle(r_base) for c in shuffle(r_base)]
+    nums = shuffle(list(range(1, SIDE + 1)))
+    return [[nums[pattern(r, c)] for c in cols] for r in rows]
 
 
-def valid(b, n, p):
-    for i in range(len(b[0])):
-        if (b[p[0]][i] == n) and (p[1] != i):
-            return False
-    for i in range(len(b)):
-        if (b[i][p[1]] == n) and (p[0] != i):
-            return False
-    b_x = p[1] // 3
-    b_y = p[0] // 3
-    for i in range(b_y * 3, b_y * 3 + 3):
-        for j in range(b_x * 3, b_x * 3 + 3):
-            if (b[i][j] == n) and ((i, j) != p):
-                return False
-    return True
+def make_puzzle(board: List[List[int]], empties_ratio: float = 0.75) -> None:
+    squares = SIDE * SIDE
+    empties = int(squares * empties_ratio)
+    for p in sample(range(squares), empties):
+        board[p // SIDE][p % SIDE] = 0
 
 
-def set_up_board(b):
-    for i in range(len(b)):
-        if (i % 3 == 0) and (i != 0):
-            print("-----------------------")
-        for j in range(len(b[0])):
-            if (j % 3 == 0) and (j != 0):
-                print(" | ", end = "")
-            if j == 8:
-                print(b[i][j])
-            else:
-                print(str(b[i][j]) + " ", end = "")
-
-
-def find_zero(b):
-    for i in range(len(b)):
-        for j in range(len(b[0])):
-            if b[i][j] == 0:
-                return (i, j)
+def find_empty(board: List[List[int]]) -> Optional[Tuple[int, int]]:
+    for r in range(SIDE):
+        for c in range(SIDE):
+            if board[r][c] == 0:
+                return r, c
     return None
 
 
-print("Generating the problem...")
-print("Your problem is:")
-set_up_board(board)
-solution(board)
-print("Solving the problem...")
-print("This is the answer:")
-set_up_board(board)
+def is_valid(board: List[List[int]], n: int, pos: Tuple[int, int]) -> bool:
+    r, c = pos
+
+    # Row
+    for j in range(SIDE):
+        if board[r][j] == n and j != c:
+            return False
+
+    # Column
+    for i in range(SIDE):
+        if board[i][c] == n and i != r:
+            return False
+
+    # Box
+    box_x = c // BASE
+    box_y = r // BASE
+    for i in range(box_y * BASE, box_y * BASE + BASE):
+        for j in range(box_x * BASE, box_x * BASE + BASE):
+            if board[i][j] == n and (i, j) != (r, c):
+                return False
+
+    return True
+
+
+def solve(board: List[List[int]]) -> bool:
+    empty = find_empty(board)
+    if not empty:
+        return True
+
+    r, c = empty
+    for n in range(1, SIDE + 1):
+        if is_valid(board, n, (r, c)):
+            board[r][c] = n
+            if solve(board):
+                return True
+            board[r][c] = 0
+
+    return False
+
+
+def print_board(board: List[List[int]]) -> None:
+    for i in range(SIDE):
+        if i % BASE == 0 and i != 0:
+            print("-" * 23)
+        for j in range(SIDE):
+            if j % BASE == 0 and j != 0:
+                print("|", end=" ")
+            val = board[i][j]
+            print(val if val != 0 else ".", end=" ")
+        print()
+
+
+def main() -> None:
+    board = generate_full_board()
+    make_puzzle(board, empties_ratio=0.75)
+
+    print("Generating the problem...\n")
+    print("Your problem is:")
+    print_board(board)
+
+    solved = solve(board)
+
+    print("\nSolving the problem...\n")
+    if solved:
+        print("This is the answer:")
+        print_board(board)
+    else:
+        print("No solution found (unexpected for this generator).")
+
+
+if __name__ == "__main__":
+    main()
