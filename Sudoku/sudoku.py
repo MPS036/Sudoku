@@ -4,14 +4,11 @@ from typing import Optional, Tuple, List
 BASE = 3
 SIDE = BASE * BASE
 
-
 def pattern(r: int, c: int) -> int:
     return (BASE * (r % BASE) + r // BASE + c) % SIDE
 
-
 def shuffle(seq):
     return sample(seq, len(seq))
-
 
 def generate_full_board() -> List[List[int]]:
     r_base = range(BASE)
@@ -20,13 +17,11 @@ def generate_full_board() -> List[List[int]]:
     nums = shuffle(list(range(1, SIDE + 1)))
     return [[nums[pattern(r, c)] for c in cols] for r in rows]
 
-
 def make_puzzle(board: List[List[int]], empties_ratio: float = 0.75) -> None:
     squares = SIDE * SIDE
     empties = int(squares * empties_ratio)
     for p in sample(range(squares), empties):
         board[p // SIDE][p % SIDE] = 0
-
 
 def find_empty(board: List[List[int]]) -> Optional[Tuple[int, int]]:
     for r in range(SIDE):
@@ -34,7 +29,6 @@ def find_empty(board: List[List[int]]) -> Optional[Tuple[int, int]]:
             if board[r][c] == 0:
                 return r, c
     return None
-
 
 def is_valid(board: List[List[int]], n: int, pos: Tuple[int, int]) -> bool:
     r, c = pos
@@ -59,7 +53,6 @@ def is_valid(board: List[List[int]], n: int, pos: Tuple[int, int]) -> bool:
 
     return True
 
-
 def solve(board: List[List[int]]) -> bool:
     empty = find_empty(board)
     if not empty:
@@ -75,7 +68,6 @@ def solve(board: List[List[int]]) -> bool:
 
     return False
 
-
 def print_board(board: List[List[int]]) -> None:
     for i in range(SIDE):
         if i % BASE == 0 and i != 0:
@@ -86,7 +78,6 @@ def print_board(board: List[List[int]]) -> None:
             val = board[i][j]
             print(val if val != 0 else ".", end=" ")
         print()
-
 
 def main() -> None:
     board = generate_full_board()
