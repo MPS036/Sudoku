@@ -5,12 +5,37 @@ BASE = 3
 SIDE = BASE * BASE
 
 def pattern(r: int, c: int) -> int:
+     """
+    Generate a base pattern for a valid Sudoku solution.
+
+    Args:
+        r: Row index.
+        c: Column index.
+
+    Returns:
+        Index used to construct a valid Sudoku row.
+    """
     return (BASE * (r % BASE) + r // BASE + c) % SIDE
 
 def shuffle(seq):
+      """
+    Return a shuffled copy of a sequence.
+
+    Args:
+        seq: Any iterable sequence.
+
+    Returns:
+        Shuffled list.
+    """
     return sample(seq, len(seq))
 
 def generate_full_board() -> List[List[int]]:
+     """
+    Generate a fully solved 9x9 Sudoku board.
+
+    Returns:
+        2D list representing a valid Sudoku solution.
+    """
     r_base = range(BASE)
     rows = [g * BASE + r for g in shuffle(r_base) for r in shuffle(r_base)]
     cols = [g * BASE + c for g in shuffle(r_base) for c in shuffle(r_base)]
@@ -18,12 +43,28 @@ def generate_full_board() -> List[List[int]]:
     return [[nums[pattern(r, c)] for c in cols] for r in rows]
 
 def make_puzzle(board: List[List[int]], empties_ratio: float = 0.75) -> None:
+     """
+    Remove numbers from a solved board to create a puzzle.
+
+    Args:
+        board: Fully solved Sudoku board (modified in place).
+        empties_ratio: Fraction of cells to empty.
+    """
     squares = SIDE * SIDE
     empties = int(squares * empties_ratio)
     for p in sample(range(squares), empties):
         board[p // SIDE][p % SIDE] = 0
 
 def find_empty(board: List[List[int]]) -> Optional[Tuple[int, int]]:
+     """
+    Find the next empty cell (marked as 0).
+
+    Args:
+        board: Sudoku board.
+
+    Returns:
+        Tuple (row, col) if empty cell exists, otherwise None.
+    """
     for r in range(SIDE):
         for c in range(SIDE):
             if board[r][c] == 0:
@@ -31,6 +72,17 @@ def find_empty(board: List[List[int]]) -> Optional[Tuple[int, int]]:
     return None
 
 def is_valid(board: List[List[int]], n: int, pos: Tuple[int, int]) -> bool:
+     """
+    Check if placing a number is valid according to Sudoku rules.
+
+    Args:
+        board: Sudoku board.
+        n: Number to validate.
+        pos: (row, col) position.
+
+    Returns:
+        True if valid placement, otherwise False.
+    """
     r, c = pos
 
     # Row
@@ -54,6 +106,17 @@ def is_valid(board: List[List[int]], n: int, pos: Tuple[int, int]) -> bool:
     return True
 
 def solve(board: List[List[int]]) -> bool:
+    """
+    Solve the Sudoku board using recursive backtracking.
+
+    The board is modified in place.
+
+    Args:
+        board: 9x9 Sudoku grid.
+
+    Returns:
+        True if solution exists, otherwise False.
+    """
     empty = find_empty(board)
     if not empty:
         return True
@@ -69,6 +132,11 @@ def solve(board: List[List[int]]) -> bool:
     return False
 
 def print_board(board: List[List[int]]) -> None:
+     """
+    Print Sudoku board in a formatted way.
+
+    Empty cells (0) are displayed as dots.
+    """
     for i in range(SIDE):
         if i % BASE == 0 and i != 0:
             print("-" * 23)
@@ -80,6 +148,9 @@ def print_board(board: List[List[int]]) -> None:
         print()
 
 def main() -> None:
+     """
+    Generate a Sudoku puzzle and solve it.
+    """
     board = generate_full_board()
     make_puzzle(board, empties_ratio=0.75)
 
